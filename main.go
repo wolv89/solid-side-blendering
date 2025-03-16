@@ -11,7 +11,9 @@ func main() {
 
 	router := http.NewServeMux()
 
-	router.HandleFunc("GET /endpoint", handleEndpoint)
+	router.HandleFunc("GET /endpoint/", handleEndpoint)
+
+	router.HandleFunc("GET /content/{path}/", handlePageContent)
 
 	serverURL := "blewb.build:8338"
 
@@ -53,5 +55,47 @@ func handleEndpoint(w http.ResponseWriter, req *http.Request) {
 	}
 
 	w.Write(data)
+
+}
+
+func handlePageContent(w http.ResponseWriter, req *http.Request) {
+
+	// Development only
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type")
+
+	contentPath := req.PathValue("path")
+	var foundContent string
+
+	switch contentPath {
+	case "home":
+		foundContent = `<h2>Business Time</h2>
+		<p>As in: It's</p>`
+	case "services":
+		foundContent = `<h3>Services</h3>
+		<h5>Some services:</h5>
+		<ul>
+		<li>Service 1</li>
+		<li>Service 2</li>
+		<li>Service 3</li>
+		</ul>`
+	case "about":
+		foundContent = `<h3>About Us</h3>
+		<p>INSERT NAME HERE corporation was founded in...</p>`
+	case "contact":
+		foundContent = `<h3>Contact Us</h3>
+		<p>Oh boy</p>
+		<p>How woud I do a form here??</p>`
+	}
+
+	if len(foundContent) == 0 {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+
+	w.Write([]byte(foundContent))
 
 }
