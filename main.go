@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -14,6 +15,10 @@ func main() {
 	router.HandleFunc("GET /endpoint/", handleEndpoint)
 
 	router.HandleFunc("GET /content/{path}/", handlePageContent)
+
+	router.Handle("/assets/", http.StripPrefix("/assets/", http.FileServer(http.Dir("./dist/assets/"))))
+
+	router.HandleFunc("/", handleWebsite)
 
 	serverURL := "blewb.build:8338"
 
@@ -97,5 +102,22 @@ func handlePageContent(w http.ResponseWriter, req *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	w.Write([]byte(foundContent))
+
+}
+
+func handleWebsite(w http.ResponseWriter, req *http.Request) {
+
+	index, err := os.ReadFile("dist/index.html")
+	if err != nil {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		return
+	}
+
+	fmt.Println(req.URL)
+
+	w.Header().Set("Content-Type", "text/html")
+	w.WriteHeader(http.StatusOK)
+
+	w.Write(index)
 
 }

@@ -11,6 +11,7 @@ const Page = lazy(() => import("./Page"))
 const Other = lazy(() => import("./Other"))
 
 const root = document.getElementById('root');
+const previs = document.getElementById('previs');
 
 if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   throw new Error(
@@ -27,3 +28,4 @@ const routes = () => (
 )
 
 render(routes, root);
+previs.remove()
